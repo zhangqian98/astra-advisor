@@ -8,6 +8,24 @@ the goal, constraints, and repository context; it decides whether independent wo
 should run alongside the parent session and chooses a supported native subagent
 model and effort for each bounded deliverable.
 
+## Selective delegation and task packets (0.3.0)
+
+The parent now evaluates whether a bounded subtask has a concrete parallel,
+context-isolation, or independent-checking benefit before delegating. Small tasks
+can stay local; unavailable inputs and duplicate/overlapping work require coordination.
+Required substantial-work review is not skipped to reduce overhead.
+
+The new [handoff tool](plugins/astra-advisor/scripts/handoff.py) generates TASK packets
+for fresh workers, DELTA packets for trusted continuations, and independent REVIEW
+packets. Each carries only the local goal, accessible sources, ownership, constraints,
+checks, stop conditions, and evidence-backed output format. Parent model-routing and
+cost policy stay out of the child prompt. Preparing a packet does not dispatch it.
+
+Read the [contract and official-source mapping](plugins/astra-advisor/skills/orchestration/references/delegation-handoff.md)
+and [Chinese guide](docs/DELEGATION.zh-CN.md). `handoff.py claim` wraps the existing
+reservation; `handoff.py gate` wraps the reuse/snapshot gates. Do not double-claim.
+These local policy checks do not intercept native calls or prove model quality/savings.
+
 ## Adaptive routing and safe worker reuse (this fork)
 
 This checkout adds local evidence-backed model routing and **reuse-first worker
@@ -89,7 +107,7 @@ For substantial implementation, Astra inspects the complete diff and reruns the
 requested checks, then sends the accumulated change set to a fresh read-only
 reviewer. This fork derives a stronger reviewer floor from the implementation route
 and records a fresh dispatch receipt. Astra accepts work only after `ship` and the
-reuse-aware snapshot gate succeed; `fix-first`
+handoff-aware gate (including reuse and snapshot checks) succeeds; `fix-first`
 requires a new parent verification and fresh review, while `rethink` requires a
 revised plan.
 
@@ -138,7 +156,7 @@ for the input contract and receipt policy.
 Separate app tasks require an explicit user request. For an explicit Codex app task,
 `mcp__codex_app__create_thread` supports `model` and `thinking`; call
 `mcp__codex_app__list_projects` first for project targets, use a worktree by default
-for Git projects, and use local otherwise. Cloud `create_thread` omits both controls,
+for Git projects, and local otherwise. Cloud `create_thread` omits both controls,
 so the bounded limitation above applies. Do not use an API key, nested CLI, or
 invented tool as a workaround.
 

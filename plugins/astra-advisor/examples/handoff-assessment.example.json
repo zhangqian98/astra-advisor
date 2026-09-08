@@ -1,0 +1,15 @@
+{
+  "purpose": "work",
+  "request": "auto",
+  "bounded": true,
+  "independent": true,
+  "inputs_ready": true,
+  "duplicate_work": false,
+  "ownership_clear": true,
+  "budget_available": true,
+  "benefit": "parallel_progress",
+  "overhead": "low",
+  "parent_work": "Inspect separate documentation while the worker implements the bounded change.",
+  "wait_for": "before_integration",
+  "reason": "The interface is settled and the files do not overlap."
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "task_id": "illustrative-task",
+  "assessment": {
+    "purpose": "work",
+    "request": "auto",
+    "bounded": true,
+    "independent": true,
+    "inputs_ready": true,
+    "duplicate_work": false,
+    "ownership_clear": true,
+    "budget_available": true,
+    "benefit": "parallel_progress",
+    "overhead": "low",
+    "parent_work": "Inspect separate documentation while the worker implements the bounded change.",
+    "wait_for": "before_integration",
+    "reason": "The interface is settled and the files do not overlap."
+  },
+  "packet": {
+    "goal": "Preserve the answer contract while adding a focused regression check.",
+    "read_only": false,
+    "ownership": [
+      "app.py"
+    ],
+    "access_confirmed": true,
+    "inputs": [
+      {
+        "ref": "app.py",
+        "purpose": "Current implementation and public answer contract."
+      }
+    ],
+    "facts": [
+      {
+        "statement": "The current answer is 42.",
+        "source": "app.py",
+        "status": "observed"
+      }
+    ],
+    "constraints": [
+      "Do not change the public interface or unrelated files."
+    ],
+    "acceptance": [
+      {
+        "check": "Inspect the answer and run relevant authorized checks.",
+        "expected": "The answer stays 42; return actual results or an explicit verification limit."
+      }
+    ],
+    "stop_conditions": [
+      "Report a blocker if a public interface change becomes necessary."
+    ]
+  }
+}
