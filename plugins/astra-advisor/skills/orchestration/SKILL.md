@@ -5,6 +5,32 @@ description: "Plan, route, implement, verify, and review substantial work with G
 
 # Astra Advisor Orchestration
 
+## Required worker-context reuse lifecycle
+
+Before any delegation, also read the [agent-reuse reference](references/agent-reuse.md).
+Prefer continuing a suitable existing worker for same-task fixes and bounded follow-ups,
+not repeatedly spawning workers to reread the same code. Always choose the model first:
+`routing_memory.py plan` -> `agent_reuse.py plan` -> `agent_reuse.py claim` -> actual native
+fresh/continuation call -> routing feedback -> `agent_reuse.py finish`. Reuse never lowers
+a model/effort or safety floor. Only a successful claim authorizes dispatch; wait/blocked,
+new feedback, ownership conflicts or stale decisions require reconciliation/replanning.
+Keep the task ID on retries but allocate a new route, decision and claim each attempt.
+
+Continue only an observed compatible idle/closed worker in the same session and worktree.
+Use the actual exposed follow-up/resume schema and send a bounded delta, not the full parent
+transcript again. If continuity is unsupported/unobservable, context is stale/suspect/near
+its limit, boundaries drift, or repeated failures occur, use a fresh properly routed worker.
+Fresh spawning still uses explicit model/effort and `fork_turns: none`; those spawn controls
+do NOT mean a trusted worker must be respawned for every subsequent turn.
+
+Record confirmed context failures (including later-discovered errors) with `agent_reuse.py
+lesson` after normal feedback. Finish every dispatch, including reviews and cancellations,
+with observed identity/status and evidence. Never release a still-running worker merely
+because a timeout elapsed. Final reviewers ALWAYS use new independent read-only contexts.
+Use `agent_reuse.py gate` for acceptance; it also invokes the original snapshot gate.
+Report actual reuse and observed usage, never guaranteed cache hits or invented savings.
+The tool is local workflow support, not an automatic native-tool interceptor.
+
 ## Required adaptive-routing feedback lifecycle
 
 Before the first delegation, read the [routing-memory reference](references/routing-memory.md).
@@ -46,9 +72,10 @@ Report model and effort as observed evidence. If metadata does not expose a valu
 say that it is unobservable; never claim a runtime pin that was not confirmed. Read
 [the operations reference](references/operations.md) before the first delegation.
 
-Use the generic `collaboration.spawn_agent` tool only when it is exposed by the
-current tool schema. Each selected subagent must receive an explicit `model`, an
-explicit supported `reasoning_effort`, and `fork_turns: none`. Choose dynamically
+For a fresh subagent, use `collaboration.spawn_agent` only when exposed by the
+current tool schema. Fresh spawn requests include explicit `model`, supported
+`reasoning_effort`, and `fork_turns: none`; follow-ups use their own observed schema.
+Choose dynamically
 among `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna` from the task's risk,
 context, and independent work available, subject to the risk and history floors in
 the routing-memory reference; do not encode a static role-to-model mapping or a fixed
@@ -77,9 +104,10 @@ RESIDUAL RISK: <remaining risk or none>
 ~~~
 
 Accept a substantial implementation only after the fresh reviewer returns `ship` and
-the snapshot-bound local `gate` succeeds for that review.
-After `fix-first`, the parent applies the correction, verifies again, and obtains a
-new fresh review. A reviewer remains read-only and never fixes its own findings.
+the local `agent_reuse.py gate`, including the snapshot-bound gate, succeeds.
+After `fix-first`, route a bounded repair back to the same eligible worker, or let the
+parent make a small safe correction. Then verify again and obtain a new fresh review.
+A reviewer remains read-only and never fixes its own findings.
 
 Use native Codex subagents in the ChatGPT app when the exposed interface supports the
 needed controls. Separate app tasks require an explicit user request. For an explicit

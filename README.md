@@ -8,6 +8,22 @@ the goal, constraints, and repository context; it decides whether independent wo
 should run alongside the parent session and chooses a supported native subagent
 model and effort for each bounded deliverable.
 
+## Adaptive routing and safe worker reuse (this fork)
+
+This checkout adds local evidence-backed model routing and **reuse-first worker
+continuation** for same-task fixes and compatible bounded follow-ups. A suitable
+worker keeps its task context and receives a small delta rather than rereading the
+whole project. Model upgrades, stale/suspect context, repeated failure and ownership
+conflicts take precedence. Final reviewers always get a new independent context.
+
+The [reuse protocol](plugins/astra-advisor/skills/orchestration/references/agent-reuse.md)
+and [Chinese guide](docs/AGENT_REUSE.zh-CN.md) explain activation, native-tool
+preflight, reservations, late-failure feedback, audit and usage accounting. These
+are local policy tools called by the skill, not an automatic native-tool hook.
+They preserve the [routing-memory constraints](plugins/astra-advisor/skills/orchestration/references/routing-memory.md).
+Observed reuse does not guarantee cache hits or net savings; there is no live
+quality/cost benchmark. Learning changes routing/context policy, not model weights.
+
 ## Cloud limitation
 
 ChatGPT Work cloud `create_thread` must omit `model` and
@@ -26,10 +42,11 @@ to get new posts in your inbox.
 
 Install the plugin in a current Codex CLI or ChatGPT desktop app with plugins
 enabled. Start a fresh task after installation and select GPT-6 Astra at any effort
-supported by the current Codex host:
+supported by the current Codex host. To use this enhanced fork, install the local
+checkout (replace the placeholder path), not the upstream marketplace:
 
 ~~~sh
-codex plugin marketplace add DannyMac180/astra-advisor --ref main
+codex plugin marketplace add /absolute/path/to/astra-advisor
 codex plugin add astra-advisor@astra-advisor
 ~~~
 
@@ -46,8 +63,9 @@ at the effort selected by the user. After capability preflight, Astra records th
 parent model and effort as observed or unobservable before implementation or
 delegation begins. The skill never changes the parent session.
 
-When delegation helps, Astra uses the exposed generic `collaboration.spawn_agent`
-tool with an explicit `model`, `reasoning_effort`, and `fork_turns: none`. It chooses
+When a fresh worker is needed, Astra uses the exposed native spawn tool with an
+explicit `model`, `reasoning_effort`, and `fork_turns: none`. Eligible follow-ups use
+the existing worker through the actual native continuation interface. It chooses
 among `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna` from the task's risk,
 context, and independent work. There are no predefined role TOMLs, companion
 installer, role-to-model mapping, or fixed subagent count cap. Astra gives each
@@ -69,8 +87,9 @@ runtime-confirmed values are reported separately.
 
 For substantial implementation, Astra inspects the complete diff and reruns the
 requested checks, then sends the accumulated change set to a fresh read-only
-reviewer. The reviewer can be any of the three supported models at a live-supported
-effort. Astra accepts the work only after the reviewer returns `ship`; `fix-first`
+reviewer. This fork derives a stronger reviewer floor from the implementation route
+and records a fresh dispatch receipt. Astra accepts work only after `ship` and the
+reuse-aware snapshot gate succeed; `fix-first`
 requires a new parent verification and fresh review, while `rethink` requires a
 revised plan.
 
