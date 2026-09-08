@@ -1,0 +1,15 @@
+{
+  "event_id": "example-review",
+  "route_id": "replace-with-review-plan-id",
+  "agent_id": "replace-with-fresh-reviewer-id",
+  "status": "pass",
+  "cause": "none",
+  "attribution_confirmed": true,
+  "observed_model": "gpt-5.6-terra",
+  "observed_effort": "high",
+  "runtime_evidence": ["runtime-observation.json"],
+  "evidence": ["review-findings.txt"],
+  "verdict": "ship",
+  "fresh_context": true,
+  "read_only": true
+}

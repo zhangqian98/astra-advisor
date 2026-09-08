@@ -1,0 +1,17 @@
+{
+  "event_id": "example-capability-failure",
+  "route_id": "replace-with-plan-id",
+  "agent_id": "replace-with-agent-id",
+  "status": "fail",
+  "cause": "capability",
+  "attribution_confirmed": true,
+  "observed_model": "gpt-5.6-luna",
+  "observed_effort": "medium",
+  "runtime_evidence": ["runtime-observation.json"],
+  "evidence": ["failure-analysis.txt"],
+  "diagnostics": {
+    "spec_reviewed": true,
+    "context_sufficient": true,
+    "environment_healthy": true
+  }
+}

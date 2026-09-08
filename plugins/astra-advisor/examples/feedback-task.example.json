@@ -1,0 +1,17 @@
+{
+  "task_id": "example-task",
+  "kind": "implementation",
+  "domain": "general",
+  "risk": {
+    "judgment": 1,
+    "context": 1,
+    "blast_radius": 0,
+    "spec_gap": 0,
+    "uncertainty": 1
+  },
+  "critical_flags": [],
+  "bounded": true,
+  "independent": true,
+  "pattern": "bounded-change",
+  "scope": "module"
+}

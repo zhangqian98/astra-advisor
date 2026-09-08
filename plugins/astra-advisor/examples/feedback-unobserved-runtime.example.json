@@ -1,0 +1,12 @@
+{
+  "event_id": "example-unobserved-runtime",
+  "route_id": "replace-with-plan-id",
+  "agent_id": "replace-with-agent-id",
+  "status": "blocked",
+  "cause": "runtime_mismatch",
+  "attribution_confirmed": true,
+  "observed_model": null,
+  "observed_effort": null,
+  "runtime_evidence": [],
+  "evidence": ["dispatch-error.txt"]
+}

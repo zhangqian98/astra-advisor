@@ -5,6 +5,25 @@ description: "Plan, route, implement, verify, and review substantial work with G
 
 # Astra Advisor Orchestration
 
+## Required adaptive-routing feedback lifecycle
+
+Before the first delegation, read the [routing-memory reference](references/routing-memory.md).
+Its risk floors, history warnings, corrective actions, reviewer floors, and snapshot-bound
+acceptance gate are mandatory additional constraints on the dynamic routing rules below.
+Initialize the local repository-scoped store and run `plan` before every worker or reviewer
+dispatch. Only `status: ready` permits dispatch. After every return, and after any delegated
+mistake discovered later, record evidence-backed `feedback` before the next routing decision.
+Record successes as well as failures and keep the same task ID across retries. Never turn an
+unobserved model into a confirmed one.
+
+For substantial changes, parent diff inspection and requested checks precede the local
+`verify` receipt, a separately planned fresh read-only review, and `gate`. Any source or
+verification-evidence change after review requires fresh verification and review. Feedback
+history is local, append-only, scoped, decayed, and evidence-correctable; it adapts routing
+policy, not model weights. It must never be silently uploaded or used to claim benchmarked
+accuracy. If the feedback tool cannot run, disclose that limitation and do not claim
+feedback-enabled acceptance.
+
 Act as the architect and acceptance owner. Keep the primary session on GPT-6 Astra
 at the effort selected by the user. Astra owns intent, architecture, decomposition,
 delegation decisions, parent verification, and acceptance. A skill cannot change the
@@ -31,8 +50,9 @@ Use the generic `collaboration.spawn_agent` tool only when it is exposed by the
 current tool schema. Each selected subagent must receive an explicit `model`, an
 explicit supported `reasoning_effort`, and `fork_turns: none`. Choose dynamically
 among `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna` from the task's risk,
-context, and independent work available; do not encode a role-to-model mapping or a
-fixed number of subagents. Give every subagent a concrete, bounded, independent
+context, and independent work available, subject to the risk and history floors in
+the routing-memory reference; do not encode a static role-to-model mapping or a fixed
+number of subagents. Give every subagent a concrete, bounded, independent
 deliverable while Astra continues useful parent work. Do not duplicate the parent's
 implementation or verification in a subagent.
 
@@ -44,9 +64,9 @@ substitute a model, effort, role, or fabricated tool. Introspection may clarify 
 omitted runtime field; it cannot replace an available public contract.
 
 For a substantial implementation, Astra must inspect the complete diff and rerun the
-requested checks before starting a fresh read-only review. The reviewer may be any of
-the three supported subagent models, selected dynamically with explicit model and
-effort controls. Give it the actual change set and evidence, and require:
+requested checks before starting a fresh read-only review. Select the reviewer dynamically with explicit model and effort controls, while
+respecting the stronger reviewer floor derived from actual implementation routes in the
+routing-memory reference. Give it the actual change set and evidence, and require:
 
 ~~~text
 ASTRA REVIEW
@@ -56,7 +76,8 @@ FINDINGS: <precise findings or none>
 RESIDUAL RISK: <remaining risk or none>
 ~~~
 
-Accept a substantial implementation only after the fresh reviewer returns `ship`.
+Accept a substantial implementation only after the fresh reviewer returns `ship` and
+the snapshot-bound local `gate` succeeds for that review.
 After `fix-first`, the parent applies the correction, verifies again, and obtains a
 new fresh review. A reviewer remains read-only and never fixes its own findings.
 
