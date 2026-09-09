@@ -62,6 +62,13 @@ class ProfileTests(unittest.TestCase):
             self.assertNotIn("You are", rules)
             self.assertNotIn("expert", rules.lower())
 
+    def test_scope_selects_base_profile_without_contradiction(self):
+        self.assertEqual(module.profile_for("docs", False)[0], "WORK+DOCS")
+        self.assertEqual(module.profile_for("docs", True)[0], "EXPLORE+DOCS")
+        self.assertEqual(module.profile_for("debug", True)[0], "EXPLORE+DEBUG")
+        self.assertEqual(module.profile_for("research", False)[0], "WORK")
+        self.assertEqual(module.profile_for("review", False)[0], "REVIEW")
+
     def test_unknown_profile_fails(self):
         with self.assertRaises(ValueError):
             module.profile_for("architect")
@@ -152,6 +159,15 @@ class RenderTests(unittest.TestCase):
     def test_write_scope_is_exact(self):
         message = module.render("task-1", "fresh", "implementation", packet())
         self.assertIn("SCOPE write only src/auth.py, tests/test_auth.py.", message)
+
+    def test_writable_docs_use_work_profile(self):
+        message = module.render("task-1", "fresh", "docs", packet())
+        self.assertIn("PROFILE WORK+DOCS", message)
+        self.assertNotIn("PROFILE EXPLORE+DOCS", message)
+
+    def test_read_only_debug_uses_explore_profile(self):
+        message = module.render("task-1", "fresh", "debug", packet(read_only=True))
+        self.assertIn("PROFILE EXPLORE+DEBUG", message)
 
     def test_return_is_distilled(self):
         message = module.render("task-1", "fresh", "research", packet(read_only=True))
