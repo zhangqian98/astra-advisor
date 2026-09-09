@@ -8,7 +8,7 @@ remain authoritative.
 
 ## Official guidance used
 
-Reviewed 2026-09-09. Public documentation and tool schemas can change.
+Reviewed 2026-09-08. Public documentation and tool schemas can change.
 
 | OpenAI source | Principle applied |
 | --- | --- |
