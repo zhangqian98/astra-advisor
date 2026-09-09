@@ -8,22 +8,34 @@ the goal, constraints, and repository context; it decides whether independent wo
 should run alongside the parent session and chooses a supported native subagent
 model and effort for each bounded deliverable.
 
-## Selective delegation and task packets (0.3.0)
+## Token-efficient delegation and task profiles (handoff-v2)
 
-The parent now evaluates whether a bounded subtask has a concrete parallel,
-context-isolation, or independent-checking benefit before delegating. Small tasks
-can stay local; unavailable inputs and duplicate/overlapping work require coordination.
-Required substantial-work review is not skipped to reduce overhead.
+The parent delegates only when a concrete, bounded, independent subtask has a
+material parallel-progress, context-isolation, or independent-checking benefit after
+coordination overhead. Read-heavy exploration, tests, triage, logs, documentation,
+and summarization are preferred. Small, sequential, duplicate, or write-conflicting
+work stays with Astra or waits for coordination.
 
-The new [handoff tool](plugins/astra-advisor/scripts/handoff.py) generates TASK packets
-for fresh workers, DELTA packets for trusted continuations, and independent REVIEW
-packets. Each carries only the local goal, accessible sources, ownership, constraints,
-checks, stop conditions, and evidence-backed output format. Parent model-routing and
-cost policy stay out of the child prompt. Preparing a packet does not dispatch it.
+[`profile_handoff.py`](plugins/astra-advisor/scripts/profile_handoff.py) retains the
+existing assessment, routing, reuse, reservation, evidence, and acceptance machinery
+while generating a shorter child prompt. The actual permission boundary selects a
+base profile: `EXPLORE` for read-only work, `WORK` for explicitly owned writes, and
+`REVIEW` for a fresh independent review. `+DEBUG`, `+TEST`, and `+DOCS` are injected
+only when the task kind changes execution behavior.
 
-Read the [contract and official-source mapping](plugins/astra-advisor/skills/orchestration/references/delegation-handoff.md)
-and [Chinese guide](docs/DELEGATION.zh-CN.md). `handoff.py claim` wraps the existing
-reservation; `handoff.py gate` wraps the reuse/snapshot gates. Do not double-claim.
+Fresh workers receive a minimal self-contained contract; trusted continuations receive
+only a bounded DELTA; reviewers receive the actual change and verification references.
+The contract keeps goal, exact scope, task-specific invariants, accessible inputs,
+sourced facts or hypotheses, done evidence, stop conditions, and return format. It
+omits parent deliberation, routing scores, pricing, full transcripts, and raw logs.
+Stable behavior instructions precede dynamic task content, but this does not guarantee
+a prompt-cache hit or net cost reduction.
+
+Read the [profile protocol](plugins/astra-advisor/skills/orchestration/references/token-efficient-profiles.md),
+[delegation contract](plugins/astra-advisor/skills/orchestration/references/delegation-handoff.md),
+[Chinese profile guide](docs/PROFILES.zh-CN.md), and
+[Chinese delegation guide](docs/DELEGATION.zh-CN.md). Legacy `handoff.py` remains for
+compatibility; only `profile_handoff.py` establishes the handoff-v2 prompt contract.
 These local policy checks do not intercept native calls or prove model quality/savings.
 
 ## Adaptive routing and safe worker reuse (this fork)
