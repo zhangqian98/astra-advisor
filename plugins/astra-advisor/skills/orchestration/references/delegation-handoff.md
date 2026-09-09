@@ -9,7 +9,7 @@ an OpenAI-endorsed routing benchmark.
 
 ## Official basis
 
-Reviewed 2026-09-09:
+Reviewed 2026-09-08:
 
 - [Codex Subagents](https://developers.openai.com/codex/subagents/): delegate
   independent work; prefer read-heavy parallelism; account for token and coordination
