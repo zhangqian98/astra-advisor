@@ -24,17 +24,19 @@ wording below are local policy choices, not OpenAI performance guarantees.
 
 ## Profiles
 
-Each task gets exactly one base profile and at most one modifier. Profiles contain
-behavior only. Paths, facts, interfaces, risks, and acceptance criteria belong in the
-dynamic task contract.
+Each task gets exactly one base profile and at most one modifier. The validated
+read/write boundary selects `EXPLORE` or `WORK`; the task kind selects an optional
+modifier. `REVIEW` is always fresh and read-only. Profiles contain behavior only.
+Paths, facts, interfaces, risks, and acceptance criteria belong in the dynamic task
+contract.
 
-| Task kind | Profile | Compact behavior |
+| Task boundary and kind | Profile | Compact behavior |
 | --- | --- | --- |
-| `research` | `EXPLORE` | Read-only; trace real paths; cite files/symbols/artifacts; return distilled evidence. |
-| `docs` | `EXPLORE+DOCS` | Add authoritative, version-specific reference checks; no code edits unless explicitly owned. |
-| `implementation`, `refactor` | `WORK` | Make the smallest scoped change; preserve contracts; run targeted checks. |
-| `debug` | `WORK+DEBUG` | Reproduce first; test competing hypotheses; avoid broad changes before evidence supports a root cause. |
-| `test` | `WORK+TEST` | Verify observable behavior; report exact checks/results; change only owned files. |
+| Any read-only non-review task | `EXPLORE` | Trace real paths; cite files/symbols/artifacts; return distilled evidence. |
+| Any task with explicitly owned writes | `WORK` | Make the smallest scoped change; preserve contracts; run targeted checks. |
+| `debug` | add `+DEBUG` | Reproduce first; test competing hypotheses; avoid broad changes before evidence supports a root cause. |
+| `test` | add `+TEST` | Verify observable behavior; report exact checks/results; change only owned files. |
+| `docs` | add `+DOCS` | Verify authoritative, version-specific references; edit only when the packet assigns writable documentation files. |
 | `review` | `REVIEW` | Fresh read-only context; findings first; inspect correctness, security, regressions, and meaningful test gaps. |
 
 Do not create personality prose such as “you are an expert.” Do not stack unrelated
