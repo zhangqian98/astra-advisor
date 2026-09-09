@@ -77,7 +77,7 @@ manifest_path = plugin / ".codex-plugin" / "plugin.json"
 manifest = require_mapping(load_json(manifest_path, "plugin manifest"), "plugin manifest")
 
 require_string(manifest, "name", "plugin manifest", "astra-advisor")
-require_string(manifest, "version", "plugin manifest", "0.3.0")
+require_string(manifest, "version", "plugin manifest", "0.4.0")
 require_string(manifest, "description", "plugin manifest")
 require_string(manifest, "homepage", "plugin manifest", "https://github.com/DannyMac180/astra-advisor#readme")
 require_string(manifest, "repository", "plugin manifest", "https://github.com/DannyMac180/astra-advisor")
@@ -128,9 +128,12 @@ for required_path in (
     "scripts/handoff.py", "tests/test_handoff.py",
     "skills/orchestration/references/delegation-handoff.md",
     "examples/handoff-assessment.example.json", "examples/handoff-task.example.json",
+    "scripts/profile_handoff.py", "tests/test_profile_handoff.py",
+    "skills/orchestration/references/token-efficient-profiles.md",
 ):
     require((plugin / required_path).is_file(), f"missing handoff component: {required_path}")
-require((repo / "docs" / "DELEGATION.zh-CN.md").is_file(), "missing handoff Chinese guide")
+for required_doc in ("DELEGATION.zh-CN.md", "PROFILES.zh-CN.md"):
+    require((repo / "docs" / required_doc).is_file(), f"missing handoff guide: {required_doc}")
 
 if skill_path.is_file():
     skill_text = skill_path.read_text(encoding="utf-8")
@@ -146,6 +149,7 @@ if skill_path.is_file():
                 frontmatter_lines[key.strip()] = value.strip().strip('"').strip("'")
         require(frontmatter_lines.get("name") == "orchestration", "orchestration skill frontmatter.name must be orchestration")
         require(bool(frontmatter_lines.get("description")), "orchestration skill frontmatter.description must be non-empty")
+    require("profile_handoff.py" in skill_text, "orchestration skill must use compact handoff-v2 entrypoint")
     for target in markdown_links(skill_text):
         check_relative_link(target, skill_root, "orchestration skill link")
 
@@ -154,6 +158,7 @@ require(readme_path.is_file(), f"missing README: {readme_path}")
 if readme_path.is_file():
     readme = readme_path.read_text(encoding="utf-8")
     require("$astra-advisor:orchestration" in readme, "README must include the Astra Advisor invocation")
+    require("profile_handoff.py" in readme, "README must describe compact handoff-v2")
     links = markdown_links(readme)
     require("https://attentionheads.substack.com/" in links, "README must link to Attention Heads")
     subscribe_links = [urlsplit(link) for link in links if urlsplit(link).path == "/subscribe"]
