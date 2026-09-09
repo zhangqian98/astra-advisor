@@ -67,12 +67,11 @@ legacy `handoff.py` remains compatibility-only and does not establish the v2 lif
 
 ## Minimal child contract
 
-Use one short base profile plus at most one modifier:
-
-- `EXPLORE` for read-only evidence gathering; `+DOCS` for authoritative API research.
-- `WORK` for implementation/refactoring; `+DEBUG` or `+TEST` only when that behavior
-  materially changes execution.
-- `REVIEW` for a fresh, independent, read-only final review.
+Use one short base profile plus at most one modifier. The actual permission boundary
+chooses the base: `EXPLORE` for read-only work, `WORK` for explicitly owned writes,
+and `REVIEW` for a fresh independent review. Add `+DEBUG`, `+TEST`, or `+DOCS` only
+when the task kind materially changes execution. This avoids a profile saying
+“read-only” while the task contract assigns writable files.
 
 The dynamic message contains only what changes the child's actions:
 
