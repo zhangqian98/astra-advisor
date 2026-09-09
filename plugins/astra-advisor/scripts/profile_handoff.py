@@ -106,13 +106,20 @@ def _joined(values: list[str], separator: str = "; ") -> str:
     return separator.join(_strip_terminal(value) for value in values if _one_line(value))
 
 
-def profile_for(kind: str) -> tuple[str, str]:
-    """Return a compact label and behavior line for a documented task kind."""
+def profile_for(kind: str, read_only: bool | None = None) -> tuple[str, str]:
+    """Return a compact label and behavior line for a documented task kind.
+
+    The task kind supplies the modifier. The actual read/write boundary selects the
+    base profile so a documentation or debugging task never receives contradictory
+    read-only and write instructions. ``None`` preserves the documented default.
+    """
     try:
         base_key, modifier_key = _KIND_PROFILE[kind]
-        base_label, base_rules = _BASE_PROFILES[base_key]
     except KeyError as exc:
         raise ValueError(f"unsupported task kind for profile: {kind}") from exc
+    if kind != "review" and read_only is not None:
+        base_key = "explore" if read_only else "work"
+    base_label, base_rules = _BASE_PROFILES[base_key]
 
     labels = [base_label]
     rules = list(base_rules)
@@ -155,8 +162,8 @@ def render(task_id: str, mode: str, kind: str, packet: dict[str, Any]) -> str:
     if mode not in {"fresh", "reuse"}:
         raise ValueError("handoff mode must be fresh or reuse")
 
-    label, behavior = profile_for(kind)
     read_only = bool(packet["read_only"])
+    label, behavior = profile_for(kind, read_only)
     if kind == "review" and (mode != "fresh" or not read_only):
         raise ValueError("review profile requires a fresh read-only handoff")
 
